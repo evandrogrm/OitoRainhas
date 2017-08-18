@@ -1,5 +1,3 @@
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -11,45 +9,85 @@ public class Main {
 	
 	public static void main(String[] args) {
 		entrada = new int[20][8];
-		avaliacao = new  int[20];
-		selecionados = new  int[20][1];//i=solucao j=coluna k=avaliacao
-
-		//ALGORITMO GENETICO		
-		int T = 0;
+		avaliacao = new int[20];
+		selecionados = new int[10][8];
+		
 		entrada = inicializaPopulacao(entrada);
-		for(T=0;T<=100;T++){
-			avaliacao = avaliaPopulacao(entrada);
-			selecionados = selecionaPais(avaliacao,entrada);
-//			recombinar(selecionados);
-//			avaliacao = avaliaPopulacao(selecionados);
-//			selecionados = selecionaPais(avaliacao,selecionados);
+		for (int T = 0; T < 100; T++) {
+			avaliacao = avaliaPopulacao(entrada); // conta conflito entre rainhas
+			selecionados = selecionaPais(avaliacao,entrada); // ordena pela avaliação e descarta metade
+			entrada = recombinar(selecionados); // gera filhos com a metade gerada
+			entrada = aplicaMutacao(entrada);
+			avaliacao = avaliaPopulacao(entrada); // conta conflito entre rainhas
+			entrada = selecionaProximaEpoca(avaliacao,entrada); // ordena e nao descarta
 		}
 		
 	}
-	/**
-	 * SELECIONAR PAIS:
-	 *   ORDENANDO VETOR DE AVALIAÇÃO
-	 */
-	private static int[][] selecionaPais(int[] avaliacao2, int[][] entrada2) {
-		int[][] selecionados = new int[20][1];
-		for (int i = 0; i < selecionados.length; i++) {
-			selecionados[i] = entrada2[i];
-			for (int j = 0; j < selecionados[0].length; j++) {
-				selecionados[i][j] = avaliacao2[j];
+
+	private static int[][] selecionaProximaEpoca(int[] avaliacao2, int[][] entrada2) {
+		boolean changed = true;
+		int tempAva = 0;
+		int[] tempEnt = null;
+		while (changed) {
+			changed = false;
+			for (int i = 0; i < avaliacao2.length - 1; i++) {
+				if (avaliacao2[i + 1] < avaliacao2[i]) {
+					// swap
+					//swap(avaliacao2[i+1],avaliacao2[i]);
+					tempAva = avaliacao2[i];
+					avaliacao2[i] = avaliacao2[i + 1];
+					avaliacao2[i + 1] = tempAva;
+					//swap(entrada2[i+1],entrada2[i]);
+					tempEnt = entrada2[i];
+					entrada2[i] = entrada2[i + 1];
+					entrada2[i + 1] = tempEnt;
+					changed = true;
+				}
 			}
 		}
-		/*
-		Arrays.sort(selecionados[i], new Comparator<int[]>() {
-			@Override
-			public int compare(int[] entry1, int[] entry2) {
-				final Integer time1 = entry1[1];
-				final Integer time2 = entry2[1];
-				return time1.compareTo(time2);
-			}
-		});
-		*/
 
-		return selecionados;
+		return entrada2;
+	}
+
+	private static int[][] aplicaMutacao(int[][] entrada2) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	private static int[][] recombinar(int[][] selecionados2) {
+		int[][] filhos = new int[entrada.length][entrada[0].length];
+		
+		
+		return filhos;
+	}
+
+	private static int[][] selecionaPais(int[] avaliacao2, int[][] entrada2) {
+		int[][] selecionados2 = new int[entrada2.length / 2][entrada2[0].length];
+		boolean changed = true;
+		int tempAva = 0;
+		int[] tempEnt = null;
+		while (changed) {
+			changed = false;
+			for (int i = 0; i < avaliacao2.length - 1; i++) {
+				if (avaliacao2[i + 1] < avaliacao2[i]) {
+					// swap
+					//swap(avaliacao2[i+1],avaliacao2[i]);
+					tempAva = avaliacao2[i];
+					avaliacao2[i] = avaliacao2[i + 1];
+					avaliacao2[i + 1] = tempAva;
+					//swap(entrada2[i+1],entrada2[i]);
+					tempEnt = entrada2[i];
+					entrada2[i] = entrada2[i + 1];
+					entrada2[i + 1] = tempEnt;
+					changed = true;
+				}
+			}
+		}
+		for (int i = 0; i < entrada2.length / 2; i++) {
+			selecionados2[i] = entrada2[i];
+		}
+
+		return selecionados2;
 	}
 
 	private static int[] avaliaPopulacao(int[][] entrada2) {
@@ -103,17 +141,17 @@ public class Main {
 	private static int[][] inicializaPopulacao(int[][] entrada2) {
 		int[] modelo = { 1, 2, 3, 4, 5, 6, 7, 8 };
 		for (int i = 0; i < entrada2.length; i++) {
-			shuffleArray(modelo);
+			modelo = shuffleArray(modelo);
 			for (int j = 0; j < modelo.length; j++) {
 				entrada2[i][j] = modelo[j];
 			}
 		}
 		//embaralha duplicados
-		int[][] compara = entrada2;
+		int[][] compara = entrada2.clone();
 		for (int i = 0; i < entrada2.length; i++) {
 			for (int j = 0; j < entrada2.length; j++) {
 				if (i != j && entrada2[i] == compara[j]) {
-					shuffleArray(modelo);
+					modelo = shuffleArray(modelo);
 					entrada2[j] = modelo;
 				}
 			}
